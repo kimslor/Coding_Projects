@@ -14,8 +14,8 @@ class node {
 
 node* new_Node(int num) { //create new node
     node* n = new node();
-    n->number = num;
-    n->num_In_Edges = 0;
+    n->number = num; //node number
+    n->num_In_Edges = 0; //amount of in_degrees
     return n;
 }
 
@@ -63,7 +63,7 @@ bool comp(const node& n1, const node& n2) {  //comparisons for nodes based on am
 
 int main() {
     
-    vector<int> output;
+    vector<int> output; //stores the values of the nodes for output
 
     while(1) {
         //take input first line to obtain num_nodes and k_th
@@ -94,21 +94,9 @@ int main() {
                 }
             }
         }
-        
-        // testing
-        // cout << "before sort: " << endl;
-        // for (int i = 0; i < num_Nodes; i++) {
-        // cout << "node num:" << nodes[i].number << ", node edges: " << nodes[i].num_In_Edges << endl;
-        // }
 
         //order nodes based on amount of in_edges, if edges are equal then sort by smallest node number
         sort(nodes, nodes+num_Nodes, comp);
-
-        // testing 
-        // cout << "after sort: " << endl;
-        // for (int i = 0; i < num_Nodes; i++) {
-        // cout << "node num:" << nodes[i].number << ", node edges: " << nodes[i].num_In_Edges << endl;
-        // }
 
         //find the k_th node from the ordered list of nodes
         output.push_back(nodes[k_Th-1].number);
@@ -116,7 +104,7 @@ int main() {
         delete nodes; //clear nodes
     }
     
-    for (int i = 0; i < output.size(); i++) {
+    for (int i = 0; i < output.size(); i++) { //output the k_th nodes from each block
         cout << output[i] << endl;
     }
 
