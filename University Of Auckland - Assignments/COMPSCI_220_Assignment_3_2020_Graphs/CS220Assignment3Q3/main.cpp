@@ -48,9 +48,9 @@ bool cmp(pair<int, int>& n1, pair<int, int>& n2) { //order nodes based on amount
     return n1.first < n2.first;
 } 
   
-vector<pair<int, int>> sort_map(map<int, int>& node_Map) { //order nodes based on amount of in_edges, if edges are equal then sort by smallest node number and then return a vector of pairs
+vector<pair<int, int> > sort_map(map<int, int>& node_Map) { //order nodes based on amount of in_edges, if edges are equal then sort by smallest node number and then return a vector of pairs
     // Declare vector of pairs 
-    vector<pair<int, int>> temp_V; 
+    vector<pair<int, int> > temp_V; 
     
     for (auto& it : node_Map) { 
         temp_V.push_back(it); 
@@ -93,7 +93,7 @@ int main() {
         }
 
         //order nodes based on amount of in_edges, if edges are equal then sort by smallest node number
-        vector<pair<int, int>> v_Temp;
+        vector<pair<int, int> > v_Temp;
         v_Temp = sort_map(n);
 
         //find the k_th node from the ordered list of nodes
