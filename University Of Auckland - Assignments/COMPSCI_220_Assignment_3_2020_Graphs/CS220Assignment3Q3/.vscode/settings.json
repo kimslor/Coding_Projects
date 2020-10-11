@@ -3,6 +3,7 @@
         "iostream": "cpp",
         "string": "cpp",
         "vector": "cpp",
-        "set": "cpp"
+        "set": "cpp",
+        "map": "cpp"
     }
 }
