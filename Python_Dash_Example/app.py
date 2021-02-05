@@ -1,3 +1,4 @@
+import serial
 import random
 import time
 import dash
@@ -19,11 +20,31 @@ temp1_axis = [0]
 temp2_axis = [0]
 temp3_axis = [0]
 
+#serial initalisation
+def serial_int(id_port):
+    p = None
+
+    try: 
+        p = serial.Serial(
+            port = id_port,
+            baudrate = 9600,
+            bytesize = serial.EIGHTBITS,
+            parity = serial.PARITY_NONE,
+            stopbits = serial.STOPBITS_ONE,
+        )
+
+    except serial.SerialException as msg:
+        print("Failed to open port")
+
+    return p
+
+serial_int("COM2")
+
 #page layout
 app.layout = html.Div([
     dcc.Graph(
         id = 'graph',
-        animate = True
+        animate = False
     ),
     dcc.Interval(
         id = 'timer',
