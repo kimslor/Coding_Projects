@@ -34,7 +34,7 @@ def serial_int(id_port):
         )
 
     except serial.SerialException as msg:
-        print("Failed to open port")
+        print("Failed to open port: {0}".format(msg))
 
     return p
 
@@ -71,7 +71,7 @@ def update_figure(self):
         rows = 2, cols = 3,
         horizontal_spacing = 0.1,
         #vertical_spacing = 0.25,
-        subplot_titles = ("Temp1", "Temp2", "Temp3", "Voltage", "Current",)
+        subplot_titles = ("Temp1", "Temp2", "Temp3", "Voltage", "Current")
     )
 
     fig.add_trace(
