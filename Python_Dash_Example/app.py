@@ -10,6 +10,11 @@ import plotly.graph_objects as go
 from dash.dependencies import Output, Input
 from plotly.subplots import make_subplots
 
+#heroku creation + add on FREE postgres database, get/store access information 
+#psycopg2 library on python, establish connection w/ database, create first table (can be easily deleted later), commit changes, and read (i.e., select) values off table
+#long term: figure out data storage method (i.e., from reading a com port to online database (how do you want your data organized)), (local script) + create online script that reads from database and updates plotly/dash page
+#most important: html/css for aesthetics
+
 app = dash.Dash(__name__)
 
 #list used for the axis values
@@ -19,6 +24,27 @@ current_axis = [0]
 temp1_axis = [0]
 temp2_axis = [0]
 temp3_axis = [0]
+
+#checks the first word of string to see if it is a measurement line
+def data_selector(string):
+    switcher = {
+        "TEMP1": True
+        "TEMP2": True
+        "TEMP3": True
+        "ISENS": True
+        "VSENS": True
+    }
+    return switcher.get(string, False) #returns false if it is not a measurement line
+
+def parse_str(port):
+    output = [0]
+    line = port.readline()
+    collapsed_line = ' '.join(line.split()) #merge all the consective white spaces
+    split_string = collapsed_line.split(' ') #split into list of strings
+    if data_selector(split_string[0]):
+        output.append(split_string[0]) #data type/channel
+        output.append(split_string[1]) #data value
+        return output
 
 #serial initalisation
 def serial_int(id_port):
@@ -38,7 +64,7 @@ def serial_int(id_port):
 
     return p
 
-serial_int("COM2")
+port = serial_int("COM2") #port selection
 
 #page layout
 app.layout = html.Div([
@@ -61,6 +87,8 @@ def update_figure(self):
     axis_x.append(axis_x[-1] + 1)
 
     #add new values to the lists
+    new_values = parse_str(port)
+
     voltage_axis.append(random.randint(0,10))
     current_axis.append(random.randint(0,10))
     temp1_axis.append(random.randint(0,10))
@@ -73,6 +101,30 @@ def update_figure(self):
         #vertical_spacing = 0.25,
         subplot_titles = ("Temp1", "Temp2", "Temp3", "Voltage", "Current")
     )
+
+    fig.update_layout(shapes=[
+        # adds line at y=Rated_V
+        {'type': 'line','y0':8,'y1': 8,'x0':-20, 
+            'x1':axis_x[-1]+10,'xref':'x1','yref':'y1',
+            'line': {'color': 'red','width': 2.5}
+        },
+        {'type': 'line','y0':8,'y1': 8,'x0':-20, 
+            'x1':axis_x[-1]+10,'xref':'x2','yref':'y2',
+            'line': {'color': 'red','width': 2.5}
+        },
+        {'type': 'line','y0':8,'y1': 8,'x0':-20, 
+            'x1':axis_x[-1]+10,'xref':'x3','yref':'y3',
+            'line': {'color': 'red','width': 2.5}
+        },
+        {'type': 'line','y0':8,'y1': 8,'x0':-20, 
+            'x1':axis_x[-1]+10,'xref':'x4','yref':'y4',
+            'line': {'color': 'red','width': 2.5}
+        },
+        {'type': 'line','y0':8,'y1': 8,'x0':-20, 
+            'x1':axis_x[-1]+10,'xref':'x5','yref':'y5',
+            'line': {'color': 'red','width': 2.5}
+        }
+    ])
 
     fig.add_trace(
         go.Scatter(
