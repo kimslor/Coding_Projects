@@ -10,6 +10,7 @@ import plotly.graph_objects as go
 from dash.dependencies import Output, Input
 from plotly.subplots import make_subplots
 
+#dequeueing lists
 #heroku creation + add on FREE postgres database, get/store access information 
 #psycopg2 library on python, establish connection w/ database, create first table (can be easily deleted later), commit changes, and read (i.e., select) values off table
 #long term: figure out data storage method (i.e., from reading a com port to online database (how do you want your data organized)), (local script) + create online script that reads from database and updates plotly/dash page
@@ -17,34 +18,57 @@ from plotly.subplots import make_subplots
 
 app = dash.Dash(__name__)
 
+#COMPORT
+COM_PORT = "COM2"
+
 #list used for the axis values
 axis_x = [0]
-voltage_axis = [0]
-current_axis = [0]
-temp1_axis = [0]
-temp2_axis = [0]
-temp3_axis = [0]
+
+num_channels = 5    #number of channels
+
+list_of_axis = []  #list containing all the list of channel measurements
+temp1_axis = [0]    #channel 1
+temp2_axis = [0]    #channel 2
+temp3_axis = [0]    #channel 3
+voltage_axis = [0]  #channel 4
+current_axis = [0]  #channel 5
+
+#add in all the list of measurements in the list of lists
+list_of_axis.append(temp1_axis)
+list_of_axis.append(temp2_axis)
+list_of_axis.append(temp3_axis)
+list_of_axis.append(current_axis)
+list_of_axis.append(voltage_axis)
+
+global next_update_channel
+next_update_channel = 0    #holder for channel number of next update
 
 #checks the first word of string to see if it is a measurement line
 def data_selector(string):
     switcher = {
-        "TEMP1": True
-        "TEMP2": True
-        "TEMP3": True
-        "ISENS": True
-        "VSENS": True
+        "TEMP1:": 1,
+        "TEMP2:": 2,
+        "TEMP3:": 3,
+        "ISENS:": 4,
+        "VSENS:": 5
     }
-    return switcher.get(string, False) #returns false if it is not a measurement line
+    return switcher.get(string, 0)  #returns 0 if it is not a measurement line
 
-def parse_str(port):
-    output = [0]
-    line = port.readline()
-    collapsed_line = ' '.join(line.split()) #merge all the consective white spaces
-    split_string = collapsed_line.split(' ') #split into list of strings
-    if data_selector(split_string[0]):
-        output.append(split_string[0]) #data type/channel
-        output.append(split_string[1]) #data value
-        return output
+#missing port at the moment for testing
+def parse_str():
+    output = ""
+    #port.inWaiting() --- not used right now due to testing
+    if(1 > 0):
+        #line = port.readline()
+        line = "TEMP3: "
+        line = line + str(random.randint(0,10))
+        collapsed_line = ' '.join(line.split())     #merge all the consective white spaces
+        split_string = collapsed_line.split(' ')    #split into list of strings
+        global next_update_channel
+        next_update_channel = data_selector(split_string[0])    #indicates the next channel to be updated
+        if (next_update_channel > 0):
+            output = split_string[1]    #data value
+    return output
 
 #serial initalisation
 def serial_int(id_port):
@@ -64,7 +88,7 @@ def serial_int(id_port):
 
     return p
 
-port = serial_int("COM2") #port selection
+port = serial_int(COM_PORT) #port selection
 
 #page layout
 app.layout = html.Div([
@@ -79,21 +103,34 @@ app.layout = html.Div([
     )
 ])
 
-# Add traces
+"""
+#updates values
+def update_values():
+    axis_x.append(axis_x[-1] + 1) #increment time axis_x
+
+    new_value = parse_str(port) #gets new value and updates the next_channel variable
+    for x in range(num_channels):
+        if (x == next_update_channel):
+            list_of_axis[x].append(new_value)
+        else:
+            list_of_axis[x].append(list_of_axis[x][-1]) #updates the other lists that don't have a next update value with the last value in their repective list
+    
+    return None
+"""
+
+#addds traces
 @app.callback(Output('graph', 'figure'),
               Input('timer', 'n_intervals'))
 def update_figure(self):
-    #increment time axis_x
-    axis_x.append(axis_x[-1] + 1)
+    axis_x.append(axis_x[-1] + 1) #increment time axis_x
 
-    #add new values to the lists
-    new_values = parse_str(port)
+    new_value = int(parse_str()) #gets new value and updates the next_channel variable
 
-    voltage_axis.append(random.randint(0,10))
-    current_axis.append(random.randint(0,10))
-    temp1_axis.append(random.randint(0,10))
-    temp2_axis.append(random.randint(0,10))
-    temp3_axis.append(random.randint(0,10))
+    for x in range(num_channels):
+        if (x+1 == next_update_channel):
+            list_of_axis[x].append(new_value)
+        else:
+            list_of_axis[x].append(list_of_axis[x][-1]) #updates the other lists that don't have a next update value with the last value in their repective list
 
     fig = make_subplots(
         rows = 2, cols = 3,
@@ -188,7 +225,6 @@ def update_figure(self):
     fig.update_layout(height = 500, width = 1000)
 
     return fig
-
 
 
 if __name__ == '__main__':
