@@ -61,7 +61,7 @@ def parse_str():
     if(1 > 0):
         #line = port.readline()
         line = "TEMP3: "
-        line = line + str(random.randint(0,10))
+        line = line + str(random.randint(0,5000))
         collapsed_line = ' '.join(line.split())     #merge all the consective white spaces
         split_string = collapsed_line.split(' ')    #split into list of strings
         global next_update_channel
@@ -141,23 +141,23 @@ def update_figure(self):
 
     fig.update_layout(shapes=[
         # adds line at y=Rated_V
-        {'type': 'line','y0':8,'y1': 8,'x0':-20, 
+        {'type': 'line','y0':4000,'y1': 4000,'x0':-20, 
             'x1':axis_x[-1]+10,'xref':'x1','yref':'y1',
             'line': {'color': 'red','width': 2.5}
         },
-        {'type': 'line','y0':8,'y1': 8,'x0':-20, 
+        {'type': 'line','y0':4000,'y1': 4000,'x0':-20, 
             'x1':axis_x[-1]+10,'xref':'x2','yref':'y2',
             'line': {'color': 'red','width': 2.5}
         },
-        {'type': 'line','y0':8,'y1': 8,'x0':-20, 
+        {'type': 'line','y0':4000,'y1': 4000,'x0':-20, 
             'x1':axis_x[-1]+10,'xref':'x3','yref':'y3',
             'line': {'color': 'red','width': 2.5}
         },
-        {'type': 'line','y0':8,'y1': 8,'x0':-20, 
+        {'type': 'line','y0':4000,'y1': 4000,'x0':-20, 
             'x1':axis_x[-1]+10,'xref':'x4','yref':'y4',
             'line': {'color': 'red','width': 2.5}
         },
-        {'type': 'line','y0':8,'y1': 8,'x0':-20, 
+        {'type': 'line','y0':4000,'y1': 4000,'x0':-20, 
             'x1':axis_x[-1]+10,'xref':'x5','yref':'y5',
             'line': {'color': 'red','width': 2.5}
         }
@@ -216,11 +216,11 @@ def update_figure(self):
     fig.update_xaxes(title_text = "time(s)", range = [axis_x[-1]-20, axis_x[-1]+10], row = 2, col = 2)
     fig.update_xaxes(title_text = "time(s)", range = [axis_x[-1]-20, axis_x[-1]+10], row = 1, col = 3)
 
-    fig.update_yaxes(title_text = "Temp1(*C)", range = [0, 10], row = 1, col = 1)
-    fig.update_yaxes(title_text = "Temp2(*C)", range = [0, 10], row = 1, col = 2) 
-    fig.update_yaxes(title_text = "Temp3(*C)", range = [0, 10], row = 1, col = 3)
-    fig.update_yaxes(title_text = "Voltage(mV)", range = [0, 10], row = 2, col = 1)
-    fig.update_yaxes(title_text = "Current(mA)", range = [0, 10], row = 2, col = 2)
+    fig.update_yaxes(title_text = "Temp1(mV)", range = [0, 5000], row = 1, col = 1)
+    fig.update_yaxes(title_text = "Temp2(mV)", range = [0, 5000], row = 1, col = 2) 
+    fig.update_yaxes(title_text = "Temp3(mV)", range = [0, 5000], row = 1, col = 3)
+    fig.update_yaxes(title_text = "Voltage(mV)", range = [0, 5000], row = 2, col = 1)
+    fig.update_yaxes(title_text = "Current(mA)", range = [0, 5000], row = 2, col = 2)
 
     fig.update_layout(height = 500, width = 1000)
 
