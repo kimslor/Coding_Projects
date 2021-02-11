@@ -1,4 +1,7 @@
 import serial
+import sys
+import io
+import threading
 import random
 import time
 import dash
@@ -19,7 +22,7 @@ from plotly.subplots import make_subplots
 app = dash.Dash(__name__)
 
 #COMPORT
-COM_PORT = "COM2"
+COM_PORT = "COM3"
 
 #list used for the axis values
 axis_x = [0]
@@ -43,6 +46,18 @@ list_of_axis.append(voltage_axis)
 global next_update_channel
 next_update_channel = 0    #holder for channel number of next update
 
+#checking for avaliable com ports
+# ser=serial.Serial()
+# for ns in range(101): 
+#     try:
+#         ser.port=str(ns)
+#         ser.open()
+#         print ("COM"+str(ns+1)+" available")
+#         ser.close()
+
+#     except serial.SerialException:
+#        print ("COM"+str(ns+1)+" NOT available")
+
 #checks the first word of string to see if it is a measurement line
 def data_selector(string):
     switcher = {
@@ -55,40 +70,63 @@ def data_selector(string):
     return switcher.get(string, 0)  #returns 0 if it is not a measurement line
 
 #missing port at the moment for testing
-def parse_str():
+def parse_str(p):
     output = ""
     #port.inWaiting() --- not used right now due to testing
-    if(1 > 0):
-        #line = port.readline()
-        line = "TEMP3: "
-        line = line + str(random.randint(0,5000))
+    if(p.inWaiting() > 0):
+        line = p.readline()
+        line = str(line)
+        print(line)
+        #line = "TEMP3: "
+        #line = line + str(random.randint(0,5000))
         collapsed_line = ' '.join(line.split())     #merge all the consective white spaces
         split_string = collapsed_line.split(' ')    #split into list of strings
         global next_update_channel
         next_update_channel = data_selector(split_string[0])    #indicates the next channel to be updated
         if (next_update_channel > 0):
             output = split_string[1]    #data value
-    return output
+            print(split_string[1]) #test
+    return int(output)
 
-#serial initalisation
-def serial_int(id_port):
-    p = None
+# serial initalisation
+# def serial_int(port = ""):
+#     p = None
 
-    try: 
-        p = serial.Serial(
-            port = id_port,
-            baudrate = 9600,
-            bytesize = serial.EIGHTBITS,
-            parity = serial.PARITY_NONE,
-            stopbits = serial.STOPBITS_ONE,
+#     try: 
+#         p = serial.Serial(
+#             port = 'COM3',
+#             baudrate = 9600,
+#             bytesize = serial.EIGHTBITS,
+#             parity = serial.PARITY_NONE,
+#             stopbits = serial.STOPBITS_ONE,
+#         )
+
+#     except serial.SerialException as msg:
+#         print("Failed to open port: {0}".format(msg))
+
+#     return p
+
+# port = serial_int('COM3') #port selection
+
+def openSerialPort(port = ""):
+    s = None
+    
+    try:
+        s = serial.Serial(
+        port = 'COM3', 
+        baudrate = 9600, 
+        bytesize = serial.EIGHTBITS,
+        parity = serial.PARITY_NONE,
+        stopbits= serial.STOPBITS_ONE,
         )
-
+        print("OKAY")
+    
     except serial.SerialException as msg:
-        print("Failed to open port: {0}".format(msg))
+        print("Can't open port")
+    
+    return s
 
-    return p
-
-port = serial_int(COM_PORT) #port selection
+port = openSerialPort('COM3')
 
 #page layout
 app.layout = html.Div([
@@ -124,7 +162,11 @@ def update_values():
 def update_figure(self):
     axis_x.append(axis_x[-1] + 1) #increment time axis_x
 
-    new_value = int(parse_str()) #gets new value and updates the next_channel variable
+    #test
+    # print(parse_str(port))
+    # new_value = 3000
+    new_value = parse_str(port) #gets new value and updates the next_channel variable
+
 
     for x in range(num_channels):
         if (x+1 == next_update_channel):
@@ -228,4 +270,5 @@ def update_figure(self):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=True, use_reloader = False)
+    port.close()
