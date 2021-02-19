@@ -21,9 +21,6 @@ from plotly.subplots import make_subplots
 
 app = dash.Dash(__name__)
 
-#COMPORT
-COM_PORT = "COM3"
-
 #list used for the axis values
 axis_x = [0]
 
@@ -61,8 +58,8 @@ next_update_channel = 0    #holder for channel number of next update
 #checks the first word of string to see if it is a measurement line
 def data_selector(string):
     switcher = {
-        "TEMP1:": 1,
-        "TEMP2:": 2,
+        'TEMP1:': 1,
+        'TEMP2:': 2,
         "TEMP3:": 3,
         "ISENS:": 4,
         "VSENS:": 5
@@ -71,55 +68,41 @@ def data_selector(string):
 
 #missing port at the moment for testing
 def parse_str(p):
-    output = ""
+    output = "100000"
     #port.inWaiting() --- not used right now due to testing
     if(p.inWaiting() > 0):
-        line = p.readline()
-        line = str(line)
-        print(line)
-        #line = "TEMP3: "
-        #line = line + str(random.randint(0,5000))
+        line = p.readline().decode("utf-8")
+
+        # line = str(line)
+        # print(line)
+        # line = "TEMP3:     "
+        # line = line + str(random.randint(0,5000))
+        # print(line)
         collapsed_line = ' '.join(line.split())     #merge all the consective white spaces
+        # print(collapsed_line)
         split_string = collapsed_line.split(' ')    #split into list of strings
+        print(split_string)
         global next_update_channel
         next_update_channel = data_selector(split_string[0])    #indicates the next channel to be updated
+        #print(next_update_channel)
         if (next_update_channel > 0):
             output = split_string[1]    #data value
             print(split_string[1]) #test
-    return int(output)
+    return output
 
 # serial initalisation
-# def serial_int(port = ""):
-#     p = None
-
-#     try: 
-#         p = serial.Serial(
-#             port = 'COM3',
-#             baudrate = 9600,
-#             bytesize = serial.EIGHTBITS,
-#             parity = serial.PARITY_NONE,
-#             stopbits = serial.STOPBITS_ONE,
-#         )
-
-#     except serial.SerialException as msg:
-#         print("Failed to open port: {0}".format(msg))
-
-#     return p
-
-# port = serial_int('COM3') #port selection
-
 def openSerialPort(port = ""):
     s = None
     
     try:
         s = serial.Serial(
-        port = 'COM3', 
-        baudrate = 9600, 
-        bytesize = serial.EIGHTBITS,
-        parity = serial.PARITY_NONE,
-        stopbits= serial.STOPBITS_ONE,
+            port = 'COM3', 
+            baudrate = 9600, 
+            bytesize = serial.EIGHTBITS,
+            parity = serial.PARITY_NONE,
+            stopbits= serial.STOPBITS_ONE,
         )
-        print("OKAY")
+        # print("OKAY")
     
     except serial.SerialException as msg:
         print("Can't open port")
@@ -165,12 +148,14 @@ def update_figure(self):
     #test
     # print(parse_str(port))
     # new_value = 3000
-    new_value = parse_str(port) #gets new value and updates the next_channel variable
-
+    new_value_str = parse_str(port) #gets new value and updates the next_channel variable
+    # print("CHECK")
+    new_value_int = int(new_value_str)
+    print(next_update_channel)
 
     for x in range(num_channels):
         if (x+1 == next_update_channel):
-            list_of_axis[x].append(new_value)
+            list_of_axis[x].append(new_value_int)
         else:
             list_of_axis[x].append(list_of_axis[x][-1]) #updates the other lists that don't have a next update value with the last value in their repective list
 
@@ -258,11 +243,11 @@ def update_figure(self):
     fig.update_xaxes(title_text = "time(s)", range = [axis_x[-1]-20, axis_x[-1]+10], row = 2, col = 2)
     fig.update_xaxes(title_text = "time(s)", range = [axis_x[-1]-20, axis_x[-1]+10], row = 1, col = 3)
 
-    fig.update_yaxes(title_text = "Temp1(mV)", range = [0, 5000], row = 1, col = 1)
-    fig.update_yaxes(title_text = "Temp2(mV)", range = [0, 5000], row = 1, col = 2) 
-    fig.update_yaxes(title_text = "Temp3(mV)", range = [0, 5000], row = 1, col = 3)
-    fig.update_yaxes(title_text = "Voltage(mV)", range = [0, 5000], row = 2, col = 1)
-    fig.update_yaxes(title_text = "Current(mA)", range = [0, 5000], row = 2, col = 2)
+    fig.update_yaxes(title_text = "Temp1(mV)", range = [1070, 1150], row = 1, col = 1)
+    fig.update_yaxes(title_text = "Temp2(mV)", range = [1070, 1150], row = 1, col = 2) 
+    fig.update_yaxes(title_text = "Temp3(mV)", range = [1070, 1150], row = 1, col = 3)
+    fig.update_yaxes(title_text = "Voltage(mV)", range = [1070, 1150], row = 2, col = 1)
+    fig.update_yaxes(title_text = "Current(mA)", range = [1070, 1150], row = 2, col = 2)
 
     fig.update_layout(height = 500, width = 1000)
 
