@@ -13,6 +13,9 @@ import plotly.graph_objects as go
 from dash.dependencies import Output, Input
 from plotly.subplots import make_subplots
 
+#comport selection
+COMPORT = 'COM3'
+
 #dequeueing lists
 #heroku creation + add on FREE postgres database, get/store access information 
 #psycopg2 library on python, establish connection w/ database, create first table (can be easily deleted later), commit changes, and read (i.e., select) values off table
@@ -72,12 +75,6 @@ def parse_str(p):
     #port.inWaiting() --- not used right now due to testing
     if(p.inWaiting() > 0):
         line = p.readline().decode("utf-8")
-
-        # line = str(line)
-        # print(line)
-        # line = "TEMP3:     "
-        # line = line + str(random.randint(0,5000))
-        # print(line)
         collapsed_line = ' '.join(line.split())     #merge all the consective white spaces
         # print(collapsed_line)
         split_string = collapsed_line.split(' ')    #split into list of strings
@@ -91,12 +88,12 @@ def parse_str(p):
     return output
 
 # serial initalisation
-def openSerialPort(port = ""):
+def openSerialPort(port_id):
     s = None
     
     try:
         s = serial.Serial(
-            port = 'COM3', 
+            port = port_id, 
             baudrate = 9600, 
             bytesize = serial.EIGHTBITS,
             parity = serial.PARITY_NONE,
@@ -109,7 +106,7 @@ def openSerialPort(port = ""):
     
     return s
 
-port = openSerialPort('COM3')
+port = openSerialPort(COMPORT)
 
 #page layout
 app.layout = html.Div([
@@ -124,32 +121,13 @@ app.layout = html.Div([
     )
 ])
 
-"""
-#updates values
-def update_values():
-    axis_x.append(axis_x[-1] + 1) #increment time axis_x
-
-    new_value = parse_str(port) #gets new value and updates the next_channel variable
-    for x in range(num_channels):
-        if (x == next_update_channel):
-            list_of_axis[x].append(new_value)
-        else:
-            list_of_axis[x].append(list_of_axis[x][-1]) #updates the other lists that don't have a next update value with the last value in their repective list
-    
-    return None
-"""
-
 #addds traces
 @app.callback(Output('graph', 'figure'),
               Input('timer', 'n_intervals'))
 def update_figure(self):
     axis_x.append(axis_x[-1] + 1) #increment time axis_x
 
-    #test
-    # print(parse_str(port))
-    # new_value = 3000
     new_value_str = parse_str(port) #gets new value and updates the next_channel variable
-    # print("CHECK")
     new_value_int = int(new_value_str)
     print(next_update_channel)
 
